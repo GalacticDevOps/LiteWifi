@@ -1,0 +1,7 @@
+/.venv
+/.vscode
+/build
+/dist
+/__pycache__
+/gui/__pycache__
+/core/__pycache__
