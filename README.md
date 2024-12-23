@@ -53,4 +53,21 @@
 - 网络管理：Windows API
 - 打包工具：PyInstaller
 
-## 项目结构 
+## 项目结构
+```
+LiteWifi/
+├── main.py # 程序入口文件
+├── run.py # 开发环境运行入口
+├── wifi_hotspot.spec # PyInstaller打包配置
+├── file_version_info.txt # 程序版本信息
+├── README.md # 项目说明文档
+├── assets/ # 资源文件目录
+│ └── icon.ico # 程序图标
+├── core/ # 核心功能模块
+│ ├── init.py
+│ └── hotspot.py # 热点管理核心类
+└── gui/ # 图形界面模块
+├── init.py
+├── main_window.py # 主窗口类
+└── styles.py # 界面样式定义
+```
