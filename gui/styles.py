@@ -29,24 +29,6 @@ QWidget {
     margin-bottom: 5px;
 }
 
-QLineEdit {
-    padding: 10px 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 14px;
-    background-color: white;
-    margin-bottom: 15px;
-    color: #212529;
-}
-
-QLineEdit:focus {
-    border-color: #4dabf7;
-}
-
-QLineEdit::placeholder {
-    color: #adb5bd;
-}
-
 #primaryButton {
     background-color: #339af0;
     color: white;

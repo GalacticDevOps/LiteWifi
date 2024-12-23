@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                             QPushButton, QLabel, QLineEdit, QMessageBox, QFrame,
                             QSystemTrayIcon, QMenu, QApplication)
-from PyQt6.QtCore import Qt, QSettings, QTimer
+from PyQt6.QtCore import Qt, QSettings, QTimer, QSize
 from PyQt6.QtGui import QIcon, QAction, QPainter, QColor, QPixmap, QImage
 import os
 import sys
@@ -25,6 +25,19 @@ class MainWindow(QMainWindow):
         self.setFixedSize(400, 500)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowMaximizeButtonHint)
         self.setStyleSheet(MAIN_STYLE)
+        
+        # 添加眼睛图标的SVG定义
+        self.eye_open_svg = """
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="#666666" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        </svg>
+        """
+        
+        self.eye_closed_svg = """
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="#666666" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+        </svg>
+        """
         
         # 设置窗口图标
         icon_path = get_asset_path(os.path.join('assets', 'icon.ico'))
@@ -71,7 +84,7 @@ class MainWindow(QMainWindow):
             }
         """)
         
-        # 定义所有SVG图标为这样其他方法可以访问
+        # 定义所有SVG图标为样其他方法可以访问
         self.power_on_svg = """
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path fill="#4CAF50" d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
@@ -144,7 +157,7 @@ class MainWindow(QMainWindow):
         self.hide()     # 隐藏窗口
         self.tray_icon.showMessage(
             "WiFi热点管理工具",
-            "程序已最小化到统托盘，双击图标可以重新打开窗口。",
+            "已小化到统托盘，双击图标可以重新打开窗口。",
             QSystemTrayIcon.MessageIcon.Information,
             2000
         )
@@ -304,7 +317,94 @@ class MainWindow(QMainWindow):
         
         control_layout.addWidget(ssid_section)
         
-        # 密码输入区域
+        # 修改密码输入区域
+        password_container = QWidget()
+        password_container.setObjectName("inputContainer")
+        password_container.setMinimumHeight(48)
+        password_container.setStyleSheet("""
+            #inputContainer {
+                background: white;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+            }
+            #inputContainer:hover {
+                border-color: #4CAF50;
+                background-color: #fafafa;
+            }
+            #inputContainer:focus {
+                border-color: #4CAF50;
+                background-color: white;
+                box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+            }
+        """)
+        
+        password_layout = QHBoxLayout(password_container)
+        password_layout.setContentsMargins(0, 0, 0, 0)
+        password_layout.setSpacing(0)
+        
+        self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText("请输入热点密码（至少8位）")
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.password_input.setObjectName("passwordInput")
+        self.password_input.setMinimumHeight(48)
+        # 添加文本变化和焦点变化的事件处理
+        self.password_input.textChanged.connect(self.update_password_visibility_button)
+        self.password_input.focusInEvent = self.password_focus_in
+        self.password_input.focusOutEvent = self.password_focus_out
+        self.password_input.setStyleSheet("""
+            #passwordInput {
+                border: none;
+                padding: 12px 15px;
+                background: transparent;
+                font-size: 15px;
+                color: #333333;
+            }
+            #passwordInput::placeholder {
+                color: #999999;
+                font-size: 14px;
+            }
+        """)
+        
+        # 创建显示/隐藏密码按钮
+        self.toggle_password_btn = QPushButton()
+        self.toggle_password_btn.setObjectName("togglePasswordButton")
+        self.toggle_password_btn.setCheckable(True)
+        self.toggle_password_btn.setFixedSize(48, 48)
+        self.toggle_password_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.toggle_password_btn.clicked.connect(self.toggle_password_visibility)
+        self.toggle_password_btn.hide()  # 初始状态隐藏按钮
+        
+        # 防止按钮点击导致输入框失焦
+        self.toggle_password_btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+        # 设置初始图标
+        self.toggle_password_btn.setIcon(self.svg_to_icon(self.eye_closed_svg))
+        self.toggle_password_btn.setIconSize(QSize(22, 22))
+        
+        # 添加样式
+        self.toggle_password_btn.setStyleSheet("""
+            #togglePasswordButton {
+                border: none;
+                background: transparent;
+                margin-right: 8px;
+                border-radius: 24px;
+                opacity: 0.7;
+            }
+            #togglePasswordButton:hover {
+                opacity: 1;
+            }
+        """)
+        
+        password_layout.addWidget(self.password_input)
+        password_layout.addWidget(self.toggle_password_btn)
+        
+        # 创建密码输入区域容器
+        password_section = QWidget()
+        password_section_layout = QVBoxLayout(password_section)
+        password_section_layout.setContentsMargins(0, 0, 0, 0)
+        password_section_layout.setSpacing(8)
+        
+        # 密码标签
         password_label = QLabel("密码")
         password_label.setObjectName("inputLabel")
         password_label.setStyleSheet("""
@@ -315,87 +415,6 @@ class MainWindow(QMainWindow):
                 margin-bottom: 8px;
             }
         """)
-        
-        # 创建密码输入容器
-        password_container = QWidget()
-        password_layout = QHBoxLayout(password_container)
-        password_layout.setContentsMargins(0, 0, 0, 0)
-        password_layout.setSpacing(10)  # 减小按钮和输入框的间距
-        
-        # 密码输入框
-        self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("输入密码(至少8位)")
-        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
-        self.password_input.setMinimumHeight(60)
-        self.password_input.setStyleSheet("""
-            QLineEdit {
-                border: 2px solid #e0e0e0;
-                border-radius: 10px;
-                padding: 12px 15px;
-                background: white;
-                font-size: 15px;
-                color: #333333;
-            }
-            QLineEdit:hover {
-                border-color: #4CAF50;
-                background-color: #fafafa;
-            }
-            QLineEdit:focus {
-                border-color: #4CAF50;
-                background-color: white;
-                outline: none;
-                box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-            }
-            QLineEdit::placeholder {
-                color: #999999;
-                font-size: 14px;
-            }
-        """)
-        
-        # 密码显示切换按钮
-        self.toggle_password_btn = QPushButton("显示")
-        self.toggle_password_btn.setFixedSize(60, 38)  # 减小按钮宽度
-        self.toggle_password_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.toggle_password_btn.setCheckable(True)
-        self.toggle_password_btn.clicked.connect(self.toggle_password_visibility)
-        self.toggle_password_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 4px;
-                background-color: white;
-                color: #666666;
-                padding: 3px 10px;
-                font-size: 13px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                border-color: #4CAF50;
-                color: #4CAF50;
-            }
-            QPushButton:pressed {
-                background-color: #e8f5e9;
-            }
-            QPushButton:checked {
-                background-color: #4CAF50;
-                border-color: #4CAF50;
-                color: white;
-            }
-            QPushButton:checked:hover {
-                background-color: #43a047;
-            }
-            QPushButton:checked:pressed {
-                background-color: #388e3c;
-            }
-        """)
-        
-        # 创建一个容器来包装密码输入区域
-        password_section = QWidget()
-        password_section_layout = QVBoxLayout(password_section)
-        password_section_layout.setContentsMargins(0, 0, 0, 0)
-        password_section_layout.setSpacing(8)
-        
-        # 添加组件到布局
-        password_layout.addWidget(self.password_input, stretch=1)
-        password_layout.addWidget(self.toggle_password_btn)
         
         password_section_layout.addWidget(password_label)
         password_section_layout.addWidget(password_container)
@@ -414,7 +433,25 @@ class MainWindow(QMainWindow):
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         control_layout.addWidget(self.status_label)
         
+        # 添加版权信息
+        copyright_label = QLabel("© 2024 Soleil | <a href='https://github.com/GalacticDevOps/LiteWifi' style='color: #666666; text-decoration: none;'>GitHub</a>")
+        copyright_label.setObjectName("copyrightLabel")
+        copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        copyright_label.setOpenExternalLinks(True)
+        copyright_label.setStyleSheet("""
+            #copyrightLabel {
+                color: #666666;
+                font-size: 12px;
+                margin-top: 10px;
+            }
+            #copyrightLabel a:hover {
+                color: #4CAF50;
+                text-decoration: underline;
+            }
+        """)
+        
         main_layout.addWidget(control_card)
+        main_layout.addWidget(copyright_label)
         main_layout.addStretch()
 
     def create_card(self) -> QWidget:
@@ -466,19 +503,14 @@ class MainWindow(QMainWindow):
 
     def toggle_password_visibility(self):
         """切换密码可见性"""
-        if self.toggle_password_btn.isChecked():
+        if self.password_input.echoMode() == QLineEdit.EchoMode.Password:
             self.password_input.setEchoMode(QLineEdit.EchoMode.Normal)
-            self.toggle_password_btn.setText("隐藏")
-            # 显示提示信息
-            self.tray_icon.showMessage(
-                "密码可见",
-                "密码当前可见，请注意安全",
-                QSystemTrayIcon.MessageIcon.Information,
-                2000
-            )
+            self.toggle_password_btn.setIcon(self.svg_to_icon(self.eye_open_svg))
         else:
             self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
-            self.toggle_password_btn.setText("显示")
+            self.toggle_password_btn.setIcon(self.svg_to_icon(self.eye_closed_svg))
+        # 点击后让输入框重新获得焦点
+        self.password_input.setFocus()
 
     def svg_to_icon(self, svg_data, size=24):
         """将SVG数据转换为QIcon"""
@@ -498,3 +530,38 @@ class MainWindow(QMainWindow):
         # 缓存图标
         self._icon_cache[cache_key] = icon
         return icon
+
+    def update_password_visibility_button(self):
+        """根据密码输入框的状态更新显示/隐藏按钮的可见性"""
+        if self.password_input.text() and self.password_input.hasFocus():
+            self.toggle_password_btn.show()
+        else:
+            self.toggle_password_btn.hide()
+            # 如果隐藏按钮时密码是可见的，将其切换回隐藏状态
+            if self.password_input.echoMode() == QLineEdit.EchoMode.Normal:
+                self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+                self.toggle_password_btn.setIcon(self.svg_to_icon(self.eye_closed_svg))
+
+    def password_focus_in(self, event):
+        """密码输入框获得焦点时的处理"""
+        QLineEdit.focusInEvent(self.password_input, event)
+        if self.password_input.text():
+            self.toggle_password_btn.show()
+
+    def password_focus_out(self, event):
+        """密码输入框失去焦点时的处理"""
+        QLineEdit.focusOutEvent(self.password_input, event)
+        # 检查新的焦点是否是显示/隐藏按钮
+        if QApplication.focusWidget() != self.toggle_password_btn:
+            # 延迟隐藏按钮，以便点击按钮时能够正常工作
+            QTimer.singleShot(200, self.delayed_hide_button)
+
+    def delayed_hide_button(self):
+        """延迟隐藏密码可见性按钮"""
+        # 检查密码输入框是否真的失去了焦点
+        if not self.password_input.hasFocus() and not self.toggle_password_btn.isDown():
+            self.toggle_password_btn.hide()
+            # 确保密码在失去焦点时恢复隐藏状态
+            if self.password_input.echoMode() == QLineEdit.EchoMode.Normal:
+                self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+                self.toggle_password_btn.setIcon(self.svg_to_icon(self.eye_closed_svg))
