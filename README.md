@@ -1,14 +1,35 @@
 # WiFi热点管理工具
 
-## 项目简介
+![License](https://img.shields.io/github/license/GalacticDevOps/LiteWifi)
+![Version](https://img.shields.io/github/v/release/GalacticDevOps/LiteWifi)
+[![Build Release](https://github.com/GalacticDevOps/LiteWifi/actions/workflows/release.yml/badge.svg)](https://github.com/GalacticDevOps/LiteWifi/actions/workflows/release.yml)
+![Downloads](https://img.shields.io/github/downloads/GalacticDevOps/LiteWifi/latest/total.svg)
+![Issues](https://img.shields.io/github/issues/GalacticDevOps/LiteWifi)
+
+## 说明
+
+> [!IMPORTANT]
+>
+> ### 严肃警告
+>
+> - 请务必遵守 [GNU Affero General Public License (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.html) 许可协议
+> - 在您的修改、演绎、分发或派生项目中，必须同样采用 **AGPL-3.0** 许可协议，**并在适当的位置包含本项目的许可和版权信息**
+> - **禁止用于售卖或其他盈利用途**，如若发现，作者保留追究法律责任的权利
+> - 禁止在二开项目中修改程序原版权信息（ 您可以添加二开作者信息 ）
+> - 感谢您的尊重与理解
+
+- 欢迎各位大佬 `Star` 😍
+
+## 👀 项目简介
+
 这是一个基于Windows系统的WiFi热点管理工具，可以在没有网络的情况下创建和管理移动热点。本工具提供图形化界面，支持系统托盘运行，适合日常使用。
 
-## 环境要求
+## ⚙️ 环境要求
 - Windows 10/11 操作系统
 - 支持WiFi的网卡
 - 需要管理员权限运行
 
-## 主要功能
+## 🎉 功能
 1. 热点管理
    - 创建/开启/关闭WiFi热点
    - 自定义热点名称(SSID)和密码
