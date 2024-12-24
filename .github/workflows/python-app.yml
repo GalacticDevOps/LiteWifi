@@ -6,16 +6,13 @@ name: Build and Release
 on:
   push:
     branches: [ "main" ]
-    tags:
-      - 'v*'
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:  # 允许手动触发
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-and-release:
     runs-on: windows-latest
     
     steps:
@@ -30,46 +27,59 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pyinstaller
+        
+    - name: Get version
+      id: get_version
+      run: |
+        $version = "v1.0." + $env:GITHUB_RUN_NUMBER
+        echo "version=$version" >> $env:GITHUB_OUTPUT
         
     - name: Build with PyInstaller
       run: |
         pyinstaller wifi_hotspot.spec
         
     - name: Create Release ZIP
-      if: startsWith(github.ref, 'refs/tags/')
       run: |
         cd dist
-        7z a -tzip LiteWifi.zip "WiFi热点管理工具.exe"
+        7z a -tzip LiteWifi-${{ steps.get_version.outputs.version }}.zip "WiFi热点管理工具.exe"
       
     - name: Create Release
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: dist/LiteWifi.zip
-        name: LiteWifi ${{ github.ref_name }}
+        tag_name: ${{ steps.get_version.outputs.version }}
+        name: LiteWifi ${{ steps.get_version.outputs.version }}
+        files: dist/LiteWifi-${{ steps.get_version.outputs.version }}.zip
         body: |
-          ## LiteWifi ${{ github.ref_name }}
+          ## LiteWifi ${{ steps.get_version.outputs.version }}
           
           ### 更新内容
-          - 自动构建发布
+          - 自动构建发布于 ${{ github.event.head_commit.timestamp }}
+          - Commit: ${{ github.event.head_commit.message }}
           
           ### 使用说明
-          1. 下载 LiteWifi.zip
+          1. 下载 LiteWifi-${{ steps.get_version.outputs.version }}.zip
           2. 解压后以管理员身份运行 WiFi热点管理工具.exe
           
-          ### 注意事项
-          - 需要管理员权限
-          - 需要支持热点功能的网卡
-          - Windows 10/11 系统
+          ### 系统要求
+          - Windows 10/11
+          - 支持热点功能的网卡
+          - 管理员权限
+          
+          ### 主要功能
+          - 创建/管理WiFi热点
+          - 系统托盘支持
+          - 记住配置信息
+          - 密码显示/隐藏
+          
+          ### 更新日志
+          详见 [README.md](https://github.com/GalacticDevOps/LiteWifi/blob/main/README.md)
         draft: false
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Build Artifact
-      if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: LiteWifi
+        name: LiteWifi-${{ steps.get_version.outputs.version }}
         path: dist/WiFi热点管理工具.exe
