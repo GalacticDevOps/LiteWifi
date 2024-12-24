@@ -1,0 +1,11 @@
+altgraph==0.17.4
+packaging==24.2
+pefile==2023.2.7
+pyinstaller==6.11.1
+pyinstaller-hooks-contrib==2024.10
+PyQt6==6.7.1
+PyQt6-Qt6==6.7.3
+PyQt6_sip==13.8.0
+pywin32==308
+pywin32-ctypes==0.2.3
+setuptools==75.5.0

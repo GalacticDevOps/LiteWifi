@@ -1,39 +1,75 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Python application
+name: Build and Release
 
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: windows-latest
+    
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build with PyInstaller
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+        pyinstaller wifi_hotspot.spec
+        
+    - name: Create Release ZIP
+      if: startsWith(github.ref, 'refs/tags/')
       run: |
-        pytest
+        cd dist
+        7z a -tzip LiteWifi.zip "WiFi热点管理工具.exe"
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: dist/LiteWifi.zip
+        name: LiteWifi ${{ github.ref_name }}
+        body: |
+          ## LiteWifi ${{ github.ref_name }}
+          
+          ### 更新内容
+          - 自动构建发布
+          
+          ### 使用说明
+          1. 下载 LiteWifi.zip
+          2. 解压后以管理员身份运行 WiFi热点管理工具.exe
+          
+          ### 注意事项
+          - 需要管理员权限
+          - 需要支持热点功能的网卡
+          - Windows 10/11 系统
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Build Artifact
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: LiteWifi
+        path: dist/WiFi热点管理工具.exe
