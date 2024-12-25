@@ -66,6 +66,6 @@ LiteWifi/
 
 ## ⭐ Star History or Repobeats
 
-[![Star History Chart](https://api.star-history.com/svg?repos=GalacticDevOps/LiteWifi&type=Date)](https://star-history.com/#yuaotian/go-cursor-help&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=GalacticDevOps/LiteWifi&type=Date)](https://star-history.com/#GalacticDevOps/LiteWifi&Date)
 
 ![Alt](https://repobeats.axiom.co/api/embed/d4c58f313a27ceb4de3045282b9cfd89eb6081c3.svg "Repobeats analytics image")
