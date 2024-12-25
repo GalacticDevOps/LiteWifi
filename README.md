@@ -1,10 +1,14 @@
 # WiFi热点管理工具
 
+> A simple WiFi Tools
+
 ![License](https://img.shields.io/github/license/GalacticDevOps/LiteWifi)
 ![Version](https://img.shields.io/github/v/release/GalacticDevOps/LiteWifi)
 [![Build Release](https://github.com/GalacticDevOps/LiteWifi/actions/workflows/release.yml/badge.svg)](https://github.com/GalacticDevOps/LiteWifi/actions/workflows/release.yml)
 ![Downloads](https://img.shields.io/github/downloads/GalacticDevOps/LiteWifi/latest/total.svg)
 ![Issues](https://img.shields.io/github/issues/GalacticDevOps/LiteWifi)
+
+![main](/screenshots/LiteWifi.png)
 
 ## 说明
 
@@ -42,44 +46,6 @@
    - 自动保存上次的配置
    - 界面简洁易用
 
-## 技术特性
-- 使用 PyQt6 构建现代化界面
-- 采用 Windows 原生 API 创建热点
-- 支持静默运行，不显示命令行窗口
-- 打包体积优化，仅包含必要组件
-
-## 使用说明
-1. 以管理员身份运行程序
-2. 输入热点名称和密码（密码至少8位）
-3. 点击"开启热点"按钮创建热点
-4. 可以最小化到系统托盘继续运行
-5. 双击托盘图标可以重新打开主窗口
-
-## 注意事项
-1. 首次运行需要以管理员权限启动
-2. 确保系统的移动热点服务已启用
-3. 如果创建失败，请检查WiFi适配器是否支持热点功能
-4. 程序可以最小化到系统托盘，不会直接退出
-
-## 版本历史
-- v1.0.0
-  - 初始版本
-- v1.0.1
-  - 优化系统托盘功能
-  - 修复窗口激活问题
-  - 减小程序体积
-  - 改进错误提示
-- v1.0.2
-  - 支持密码显示/隐藏
-  - 支持密码自动保存
-
-
-## 技术架构
-- 开发语言：Python 3.8+
-- GUI框架：PyQt6
-- 网络管理：Windows API
-- 打包工具：PyInstaller
-
 ## 项目结构
 ```
 LiteWifi/
@@ -97,3 +63,9 @@ LiteWifi/
 ├── main_window.py # 主窗口类
 └── styles.py # 界面样式定义
 ```
+
+## ⭐ Star History or Repobeats
+
+[![Star History Chart](https://api.star-history.com/svg?repos=GalacticDevOps/LiteWifi&type=Date)](https://star-history.com/#yuaotian/go-cursor-help&Date)
+
+![Alt](https://repobeats.axiom.co/api/embed/d4c58f313a27ceb4de3045282b9cfd89eb6081c3.svg "Repobeats analytics image")
