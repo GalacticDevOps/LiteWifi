@@ -8,4 +8,4 @@ PyQt6-Qt6==6.7.3
 PyQt6_sip==13.8.0
 pywin32==308
 pywin32-ctypes==0.2.3
-setuptools==75.5.0
+setuptools==78.1.1
